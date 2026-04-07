@@ -1,0 +1,176 @@
+title Fitness Coaching Platform ERD
+colorMode pastel
+notation crows-foot
+styleMode watercolor
+typeface clean
+
+// USERS
+
+Users [color: Blue]{
+  user_id uuid pk
+  full_name varchar(100) not null
+  email varchar(255) unique not null
+  phone varchar(20)
+  password_hash varchar(255)
+  role enum['trainer','client','admin']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Users.user_id < Trainers.user_id
+Users.user_id < Clients.user_id
+
+// TRAINERS
+
+Trainers[color: Green]{
+  trainer_id uuid pk
+  user_id uuid fk unique
+  bio text
+  expertise text
+  experience_years int
+  hourly_rate decimal(10,2)
+  is_active boolean
+  created_at timestamp
+}
+
+Trainers.trainer_id < Programs.trainer_id
+Trainers.trainer_id < Sessions.trainer_id
+Trainers.trainer_id < Trainer_Feedback.trainer_id
+
+
+// CLIENTS
+
+Clients [color: Green] {
+  client_id uuid pk
+  user_id uuid fk unique
+  date_of_birth date
+  gender enum['male','female','other']
+  height_cm decimal(5,2)
+  current_weight decimal(5,2)
+  fitness_goal text
+  medical_notes text
+  created_at timestamp
+}
+
+Clients.client_id < Enrollments.client_id
+Clients.client_id < Sessions.client_id
+Clients.client_id < Checkins.client_id
+Clients.client_id < Progress_Records.client_id
+
+
+// PROGRAMS 
+Programs [color: Purple] {
+  program_id uuid pk
+  trainer_id uuid fk
+  title varchar(255)
+  description text
+  program_type enum['consultation','coaching','subscription']
+  duration_days int
+  price decimal(10,2)
+  includes_workout boolean
+  includes_diet boolean
+  is_active boolean
+  created_at timestamp
+}
+
+Programs.program_id < Enrollments.program_id
+
+
+// ENROLLMENTS 
+Enrollments [color: Red]{
+  enrollment_id uuid pk
+  client_id uuid fk
+  program_id uuid fk
+  trainer_id uuid fk
+  start_date date
+  end_date date
+  status enum['pending','active','completed','cancelled','expired']
+  created_at timestamp
+}
+
+Enrollments.enrollment_id < Payments.enrollment_id
+Enrollments.enrollment_id < Subscriptions.enrollment_id
+Enrollments.enrollment_id < Sessions.enrollment_id
+
+
+// SUBSCRIPTIONS
+Subscriptions [color: Red]{
+  subscription_id uuid pk
+  enrollment_id uuid fk
+  billing_cycle enum['monthly','quarterly','yearly']
+  next_billing_date date
+  status enum['active','paused','cancelled','expired']
+  created_at timestamp
+}
+
+
+// PAYMENTS
+Payments[color: Red]{
+  payment_id uuid pk
+  enrollment_id uuid fk
+  amount decimal(10,2)
+  payment_method enum['upi','card','netbanking','wallet']
+  transaction_ref varchar(255)
+  payment_status enum['pending','success','failed','refunded']
+  paid_at timestamp
+}
+
+
+// SESSIONS 
+Sessions [color: Yellow] {
+  session_id uuid pk
+  trainer_id uuid fk
+  client_id uuid fk
+  enrollment_id uuid fk
+  session_type enum['consultation','coaching_call','live_session']
+  scheduled_at timestamp
+  duration_minutes int
+  meeting_link text
+  status enum['scheduled','completed','cancelled','no_show']
+  created_at timestamp
+}
+
+
+// CHECK-INS 
+Checkins [color: Yellow] {
+  checkin_id uuid pk
+  client_id uuid fk
+  submitted_at timestamp
+  energy_level int
+  diet_adherence int
+  workout_adherence int
+  notes text
+}
+
+// PROGRESS TRACKING
+Progress_Records [color: Orange] {
+  progress_id uuid pk
+  client_id uuid fk
+  recorded_at date
+  weight_kg decimal(5,2)
+  body_fat_pct decimal(5,2)
+  chest_cm decimal(5,2)
+  waist_cm decimal(5,2)
+  hip_cm decimal(5,2)
+  notes text
+}
+
+Progress_Records.progress_id < Progress_Photos.progress_id
+
+// PROGRESS PHOTOS
+Progress_Photos [color: Grey] {
+  photo_id uuid pk
+  progress_id uuid fk
+  photo_url text
+  uploaded_at timestamp
+}
+
+// TRAINER FEEDBACK 
+Trainer_Feedback [color: Grey] {
+  feedback_id uuid pk
+  trainer_id uuid fk
+  client_id uuid fk
+  related_checkin_id uuid fk
+  notes text
+  created_at timestamp
+}
