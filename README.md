@@ -63,7 +63,7 @@ This is not a gym system — it models a real-world **online coaching ecosystem*
 
 ## 🛠️ Tech Used
 
-* ER Diagram Tool: Draw.io / Eraser / Excalidraw
+* ER Diagram Tool:Eraser
 * Version Control: GitHub
 
 ---
